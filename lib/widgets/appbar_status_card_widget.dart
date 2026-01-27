@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class AppbarStatusCard extends StatelessWidget {
+class AppbarStatusCardWidget extends StatelessWidget {
   final String title;
   final IconData icon;
   final int quantity;
-  const AppbarStatusCard({
+  const AppbarStatusCardWidget({
     super.key,
     required this.title,
     required this.icon,

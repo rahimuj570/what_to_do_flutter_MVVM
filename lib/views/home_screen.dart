@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mvvm_task_management/widgets/appbar_status_card.dart';
+import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
+import 'package:mvvm_task_management/widgets/todo_card_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,17 +36,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: GridView.count(
                     crossAxisCount: 3,
                     children: [
-                      AppbarStatusCard(
+                      AppbarStatusCardWidget(
                         title: 'In Progress',
                         icon: Icons.timelapse,
                         quantity: 10,
                       ),
-                      AppbarStatusCard(
+                      AppbarStatusCardWidget(
                         title: 'Completed',
                         icon: Icons.done_all,
                         quantity: 1,
                       ),
-                      AppbarStatusCard(
+                      AppbarStatusCardWidget(
                         title: 'Canceled',
                         icon: Icons.cancel_outlined,
                         quantity: 20,
@@ -58,14 +59,22 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: Wrap(
                 children: [
-                  ListView.builder(
-                    itemCount: 10,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) => Container(
-                      height: 100,
-                      color: Colors.red,
-                      margin: EdgeInsets.all(10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 30,
+                    ),
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) =>
+                          SizedBox(height: 15),
+                      itemCount: 10,
+                      shrinkWrap: true,
+
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) => ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: 100),
+                        child: TodoCardWidget(),
+                      ),
                     ),
                   ),
                 ],
