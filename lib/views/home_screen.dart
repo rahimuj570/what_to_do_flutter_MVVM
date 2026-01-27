@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
 import 'package:mvvm_task_management/widgets/todo_card_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+  static String name = 'homeScreen';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -67,13 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.separated(
                       separatorBuilder: (context, index) =>
                           SizedBox(height: 15),
-                      itemCount: 10,
+                      itemCount: 11,
                       shrinkWrap: true,
 
                       physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) => ConstrainedBox(
                         constraints: BoxConstraints(minHeight: 100),
-                        child: TodoCardWidget(),
+                        child: index == 10 ? SizedBox() : TodoCardWidget(),
                       ),
                     ),
                   ),
@@ -81,6 +83,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: AppColors.themeColor,
+          foregroundColor: Colors.white,
+          child: Icon(Icons.add),
         ),
       ),
     );

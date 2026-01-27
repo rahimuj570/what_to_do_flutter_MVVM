@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mvvm_task_management/app/app_route.dart';
 import 'package:mvvm_task_management/app/app_theme.dart';
 import 'package:mvvm_task_management/views/home_screen.dart';
 
@@ -16,7 +17,8 @@ class _TodoAppState extends State<TodoApp> {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.light,
-      home: HomeScreen(),
+      onGenerateRoute: (settings) => AppRoute.appRoutes(settings),
+      initialRoute: HomeScreen.name,
     );
   }
 }
