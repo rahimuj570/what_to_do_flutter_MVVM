@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mvvm_task_management/widgets/appbar_status_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   'What To Do 👀❗',
-                  style: TextStyle(fontSize: 22, color: Colors.white),
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 centerTitle: true,
 
@@ -31,29 +35,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: GridView.count(
                     crossAxisCount: 3,
                     children: [
-                      Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.timelapse),
-                            Text('In Progress'),
-                          ],
-                        ),
+                      AppbarStatusCard(
+                        title: 'In Progress',
+                        icon: Icons.timelapse,
+                        quantity: 10,
                       ),
-                      Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Icon(Icons.done_all), Text('Completed')],
-                        ),
+                      AppbarStatusCard(
+                        title: 'Completed',
+                        icon: Icons.done_all,
+                        quantity: 1,
                       ),
-                      Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.cancel_outlined),
-                            Text('Uncompleted'),
-                          ],
-                        ),
+                      AppbarStatusCard(
+                        title: 'Canceled',
+                        icon: Icons.cancel_outlined,
+                        quantity: 20,
                       ),
                     ],
                   ),
