@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
+import 'package:mvvm_task_management/views/add_todo_screen.dart';
 import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
 import 'package:mvvm_task_management/widgets/todo_card_widget.dart';
 
@@ -85,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, AddTodoScreen.name);
+          },
           backgroundColor: AppColors.themeColor,
           foregroundColor: Colors.white,
           child: Icon(Icons.add),
