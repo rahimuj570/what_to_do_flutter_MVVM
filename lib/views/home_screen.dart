@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/views/add_todo_screen.dart';
 import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
@@ -67,16 +68,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       horizontal: 8,
                       vertical: 30,
                     ),
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) =>
-                          SizedBox(height: 15),
-                      itemCount: 11,
-                      shrinkWrap: true,
+                    child: SlidableAutoCloseBehavior(
+                      child: ListView.separated(
+                        separatorBuilder: (context, index) =>
+                            SizedBox(height: 15),
+                        itemCount: 11,
+                        shrinkWrap: true,
 
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) => ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: 100),
-                        child: index == 10 ? SizedBox() : TodoCardWidget(),
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) => ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: 100),
+                          child: index == 10 ? SizedBox() : TodoCardWidget(),
+                        ),
                       ),
                     ),
                   ),
