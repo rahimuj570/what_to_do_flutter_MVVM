@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
+import 'package:mvvm_task_management/models/todo_model.dart';
+import 'package:mvvm_task_management/view_models/todo_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddTodoScreen extends StatefulWidget {
   const AddTodoScreen({super.key});
@@ -26,8 +29,8 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
       context,
 
       showTitleActions: true,
-      minTime: DateTime(2018, 3, 5),
-      maxTime: DateTime(2019, 6, 7),
+      minTime: DateTime.now(),
+      maxTime: DateTime.now().add(Duration(days: 365 * 5)),
       onConfirm: (date) {
         DateFormat format = DateFormat.yMMMEd().add_Hm();
         _dateTimeTEC.text = format.format(date);
@@ -36,6 +39,23 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
       currentTime: DateTime.now(),
       locale: LocaleType.en,
     );
+  }
+
+  void craeteTodo() async {
+    DateFormat format = DateFormat.yMMMEd().add_Hm();
+    DateTime dt = format.parse(_dateTimeTEC.text);
+    TodoModel model = TodoModel(
+      status: 0,
+      todo: _todoTEC.text.trim(),
+      deadline: dt.microsecondsSinceEpoch,
+    );
+    int count = await context.read<TodoProvider>().addTodo(model);
+
+    if (count == 1) {
+      print('added');
+    } else {
+      print('error');
+    }
   }
 
   @override
@@ -89,7 +109,10 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   ],
                 ),
                 SizedBox(height: 20),
-                ElevatedButton(onPressed: () {}, child: Text('Create Todo')),
+                ElevatedButton(
+                  onPressed: craeteTodo,
+                  child: Text('Create Todo'),
+                ),
               ],
             ),
           ),

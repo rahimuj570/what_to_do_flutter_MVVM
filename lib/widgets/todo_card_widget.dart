@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:mvvm_task_management/models/todo_model.dart';
 
 class TodoCardWidget extends StatelessWidget {
-  const TodoCardWidget({super.key});
+  const TodoCardWidget(this.model, {super.key});
 
+  final TodoModel model;
   @override
   Widget build(BuildContext context) {
     return Slidable(
@@ -45,11 +47,7 @@ class TodoCardWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text(
-                  'data df s fs f f sd fsd fdffffff  f f ffffff eewgergregre ergegerregreg regergregreg rgregergeg dfgdfgfdg ddsfsfsfsfdsf sdfsfsd dg fg d fg dg  dsdddd d d d fs f sfsssssd f fsd fs dfs fs ',
-                ),
-              ),
+              Expanded(child: Text(model.todo)),
               SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,

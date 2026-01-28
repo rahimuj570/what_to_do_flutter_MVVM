@@ -17,6 +17,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<TodoProvider>().fetchTodo();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -83,29 +92,33 @@ class _HomeScreenState extends State<HomeScreen> {
                           shrinkWrap: true,
 
                           physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) => ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 100),
-                            child: index == todoProvider.getTodoList.length
-                                ? todoProvider.getTodoList.isNotEmpty
-                                      ? SizedBox()
-                                      : Center(
-                                          child: Column(
-                                            children: [
-                                              Icon(
-                                                Icons.folder_open_sharp,
-                                                size: 50,
-                                              ),
-                                              Text(
-                                                'Nothing to do 👀',
-                                                style: Theme.of(
-                                                  context,
-                                                ).textTheme.headlineSmall,
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                : TodoCardWidget(),
-                          ),
+                          itemBuilder: (context, index) {
+                            return ConstrainedBox(
+                              constraints: BoxConstraints(minHeight: 100),
+                              child: index == todoProvider.getTodoList.length
+                                  ? todoProvider.getTodoList.isNotEmpty
+                                        ? SizedBox()
+                                        : Center(
+                                            child: Column(
+                                              children: [
+                                                Icon(
+                                                  Icons.folder_open_sharp,
+                                                  size: 50,
+                                                ),
+                                                Text(
+                                                  'Nothing to do 👀',
+                                                  style: Theme.of(
+                                                    context,
+                                                  ).textTheme.headlineSmall,
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                  : TodoCardWidget(
+                                      todoProvider.getTodoList[index],
+                                    ),
+                            );
+                          },
                         ),
                       ),
                     ),

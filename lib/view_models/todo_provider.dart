@@ -15,11 +15,29 @@ class TodoProvider extends ChangeNotifier {
     DbServices dbServices = DbServices();
     Database db = await dbServices.getDatabase;
 
-    List<Map<String, dynamic>> todos = await db.query(dbServices.dbName);
+    List<Map<String, dynamic>> todos = await db.query(dbServices.todoTableName);
     for (var t in todos) {
       _todoList.add(TodoModel.fromJson(t));
     }
     _isFetchingTodod = false;
     notifyListeners();
+  }
+
+  bool _isCraetingTodo = false;
+  bool get getIsCreatingTodo => _isCraetingTodo;
+  Future<int> addTodo(TodoModel model) async {
+    int count = 0;
+    _isCraetingTodo = true;
+    notifyListeners();
+
+    DbServices dbServices = DbServices();
+    Database db = await dbServices.getDatabase;
+
+    count = await db.insert(dbServices.todoTableName, model.toJson());
+
+    _isCraetingTodo = false;
+    notifyListeners();
+    fetchTodo();
+    return count;
   }
 }

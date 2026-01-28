@@ -1,12 +1,18 @@
 class TodoModel {
-  final int id;
+  final int? id;
   final String todo;
-  final DateTime? deadline;
+  final int? deadline;
+  final int status;
 
-  TodoModel({required this.id, required this.todo, required this.deadline});
+  TodoModel({
+    this.id,
+    required this.status,
+    required this.todo,
+    required this.deadline,
+  });
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'todo': todo, 'deadline': deadline};
+    return {'id': id, 'todo': todo, 'deadline': deadline, 'status': status};
   }
 
   factory TodoModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +20,7 @@ class TodoModel {
       id: json['id'],
       todo: json['todo'],
       deadline: json['deadline'],
+      status: json['status'],
     );
   }
 }
