@@ -33,6 +33,8 @@ class TodoProvider extends ChangeNotifier {
   bool get getIsFetching => _isFetchingTodod;
   Future<void> fetchTodo() async {
     _todoInProgressList.clear();
+    _todoCancelledList.clear();
+    _todoCompletedList.clear();
     _isFetchingTodod = true;
     notifyListeners();
     Database db = await dbServices.getDatabase;
@@ -81,6 +83,62 @@ class TodoProvider extends ChangeNotifier {
       _todoInProgressList.removeWhere((element) => element.id == todoId);
       notifyListeners();
     }
+    return count;
+  }
+
+  Future<int> changeTodoStatus(int newStatus, TodoModel model) async {
+    int count = 0;
+    Database db = await dbServices.getDatabase;
+    int oldStatus = model.status;
+    model.status = newStatus;
+    count = await db.update(
+      dbServices.todoTableName,
+      model.toJson(),
+      where: 'id=?',
+      whereArgs: [model.id],
+    );
+
+    if (count != 0) {
+      switch (oldStatus) {
+        case 0:
+          {
+            _todoInProgressList.removeWhere(
+              (element) => element.id == model.id,
+            );
+            break;
+          }
+        case 1:
+          {
+            _todoCompletedList.removeWhere((element) => element.id == model.id);
+            break;
+          }
+
+        default:
+          {
+            _todoCancelledList.removeWhere((element) => element.id == model.id);
+          }
+      }
+
+      switch (newStatus) {
+        case 0:
+          {
+            _todoInProgressList.add(model);
+            break;
+          }
+        case 1:
+          {
+            _todoCompletedList.add(model);
+            break;
+          }
+
+        default:
+          {
+            _todoCancelledList.add(model);
+          }
+      }
+      notifyListeners();
+    }
+
     return count;
   }
 }

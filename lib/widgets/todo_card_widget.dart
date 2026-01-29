@@ -75,11 +75,22 @@ class TodoCardWidget extends StatelessWidget {
                     PopupMenuButton(
                       itemBuilder: (context) => [
                         if (model.status != 0)
-                          PopupMenuItem(child: Text(getMenuName(0))),
+                          PopupMenuItem(
+                            child: Text(getMenuName(0)),
+                            onTap: () => onTapChangeStatus(context, 0, model),
+                          ),
                         if (model.status != 1)
-                          PopupMenuItem(child: Text(getMenuName(1))),
+                          PopupMenuItem(
+                            child: Text(getMenuName(1)),
+                            onTap: () {
+                              onTapChangeStatus(context, 1, model);
+                            },
+                          ),
                         if (model.status != 2)
-                          PopupMenuItem(child: Text(getMenuName(2))),
+                          PopupMenuItem(
+                            child: Text(getMenuName(2)),
+                            onTap: () => onTapChangeStatus(context, 2, model),
+                          ),
                       ],
                     ),
                     Chip(
@@ -126,5 +137,30 @@ class TodoCardWidget extends StatelessWidget {
     }
 
     return remain;
+  }
+}
+
+void onTapChangeStatus(
+  BuildContext context,
+  int newStatus,
+  TodoModel model,
+) async {
+  int count = await context.read<TodoProvider>().changeTodoStatus(
+    newStatus,
+    model,
+  );
+  if (context.mounted) {
+    if (count != 0) {
+      showSnackBar(
+        context: context,
+        message: 'Todo marked as ${getMenuName(newStatus)}ed',
+      );
+    } else {
+      showSnackBar(
+        isFailed: true,
+        context: context,
+        message: 'Something went wrong',
+      );
+    }
   }
 }
