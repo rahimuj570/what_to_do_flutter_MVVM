@@ -5,7 +5,7 @@ import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/utils/show_snackbar.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
-import 'package:mvvm_task_management/widgets/btn_loading.dart';
+import 'package:mvvm_task_management/widgets/btn_loading_widget.dart';
 import 'package:provider/provider.dart';
 
 class AddTodoScreen extends StatefulWidget {
@@ -137,7 +137,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 Consumer<TodoProvider>(
                   builder: (context, value, child) => Visibility(
                     visible: value.getIsCreatingTodo == false,
-                    replacement: Center(child: BtnLoading()),
+                    replacement: Center(child: BtnLoadingWidget()),
                     child: ElevatedButton(
                       onPressed: craeteTodo,
                       child: Text('Create Todo'),

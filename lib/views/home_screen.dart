@@ -4,6 +4,7 @@ import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:mvvm_task_management/views/add_todo_screen.dart';
 import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
+import 'package:mvvm_task_management/widgets/full_page_loading_widget.dart';
 import 'package:mvvm_task_management/widgets/todo_card_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -30,104 +31,101 @@ class _HomeScreenState extends State<HomeScreen> {
     return SafeArea(
       child: Scaffold(
         body: Consumer<TodoProvider>(
-          builder: (context, todoProvider, child) => CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                leading: IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-                floating: true,
-                expandedHeight: 240,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    'What To Do 👀❗',
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+          builder: (context, todoProvider, child) => SlidableAutoCloseBehavior(
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  leading: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.search),
                   ),
-                  centerTitle: true,
-
-                  background: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 50,
-                      left: 20,
-                      right: 20,
+                  floating: true,
+                  expandedHeight: 240,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: Text(
+                      'What To Do 👀❗',
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    child: GridView.count(
-                      crossAxisCount: 3,
-                      children: [
-                        AppbarStatusCardWidget(
-                          title: 'In Progress',
-                          icon: Icons.timelapse,
-                          quantity: 10,
-                        ),
-                        AppbarStatusCardWidget(
-                          title: 'Completed',
-                          icon: Icons.done_all,
-                          quantity: 1,
-                        ),
-                        AppbarStatusCardWidget(
-                          title: 'Canceled',
-                          icon: Icons.cancel_outlined,
-                          quantity: 20,
-                        ),
-                      ],
+                    centerTitle: true,
+                    background: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 50,
+                        left: 20,
+                        right: 20,
+                      ),
+                      child: GridView.count(
+                        crossAxisCount: 3,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(), // important!
+                        children: [
+                          AppbarStatusCardWidget(
+                            title: 'In Progress',
+                            icon: Icons.timelapse,
+                            quantity: 10,
+                          ),
+                          AppbarStatusCardWidget(
+                            title: 'Completed',
+                            icon: Icons.done_all,
+                            quantity: 1,
+                          ),
+                          AppbarStatusCardWidget(
+                            title: 'Canceled',
+                            icon: Icons.cancel_outlined,
+                            quantity: 20,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: Wrap(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 30,
-                      ),
-                      child: SlidableAutoCloseBehavior(
-                        child: ListView.separated(
+                todoProvider.getIsFetching
+                    ? SliverToBoxAdapter(child: FullPageLoadingWidget())
+                    : SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 30,
+                        ),
+                        sliver: SliverList.separated(
                           separatorBuilder: (context, index) =>
-                              SizedBox(height: 15),
+                              SizedBox(height: 20),
                           itemCount: todoProvider.getTodoList.length + 1,
-                          shrinkWrap: true,
-
-                          physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            return ConstrainedBox(
-                              constraints: BoxConstraints(minHeight: 100),
-                              child: index == todoProvider.getTodoList.length
-                                  ? todoProvider.getTodoList.isNotEmpty
-                                        ? SizedBox()
-                                        : Center(
-                                            child: Column(
-                                              children: [
-                                                Icon(
-                                                  Icons.folder_open_sharp,
-                                                  size: 50,
-                                                ),
-                                                Text(
-                                                  'Nothing to do 👀',
-                                                  style: Theme.of(
-                                                    context,
-                                                  ).textTheme.headlineSmall,
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                  : TodoCardWidget(
-                                      todoProvider.getTodoList[index],
-                                    ),
+                            if (index == todoProvider.getTodoList.length) {
+                              return todoProvider.getTodoList.isNotEmpty
+                                  ? const SizedBox(height: 100)
+                                  : Center(
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            Icons.folder_open_sharp,
+                                            size: 50,
+                                          ),
+                                          Text(
+                                            'Nothing to do 👀',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.headlineSmall,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                            }
+                            // Wrap each item with Slidable here
+                            return TodoCardWidget(
+                              todoProvider.getTodoList[index],
                             );
                           },
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.pushNamed(context, AddTodoScreen.name);
