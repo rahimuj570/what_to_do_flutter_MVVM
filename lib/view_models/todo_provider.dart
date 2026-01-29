@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 class TodoProvider extends ChangeNotifier {
   bool _isFetchingTodod = false;
   final List<TodoModel> _todoList = [];
+  DbServices dbServices = DbServices();
 
   List get getTodoList => _todoList;
   bool get getIsFetching => _isFetchingTodod;
@@ -13,7 +14,6 @@ class TodoProvider extends ChangeNotifier {
     _todoList.clear();
     _isFetchingTodod = true;
     notifyListeners();
-    DbServices dbServices = DbServices();
     Database db = await dbServices.getDatabase;
 
     List<Map<String, dynamic>> todos = await db.query(dbServices.todoTableName);
@@ -39,6 +39,21 @@ class TodoProvider extends ChangeNotifier {
     _isCraetingTodo = false;
     notifyListeners();
     fetchTodo();
+    return count;
+  }
+
+  Future<int> deleteTodo(int todoId) async {
+    Database db = await dbServices.getDatabase;
+    int count = await db.delete(
+      dbServices.todoTableName,
+      where: 'id=?',
+      whereArgs: [todoId],
+    );
+
+    if (count != 0) {
+      _todoList.removeWhere((element) => element.id == todoId);
+      notifyListeners();
+    }
     return count;
   }
 }
