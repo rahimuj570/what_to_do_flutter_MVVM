@@ -52,7 +52,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     TodoModel model = TodoModel(
       status: 0,
       todo: _todoTEC.text.trim(),
-      deadline: dt?.microsecondsSinceEpoch,
+      deadline: dt?.millisecondsSinceEpoch,
     );
     try {
       int count = await context.read<TodoProvider>().addTodo(model);

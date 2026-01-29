@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/utils/show_snackbar.dart';
+import 'package:mvvm_task_management/utils/task_status_get.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -73,17 +74,23 @@ class TodoCardWidget extends StatelessWidget {
                   children: [
                     PopupMenuButton(
                       itemBuilder: (context) => [
-                        PopupMenuItem(child: Text('Complete')),
-                        PopupMenuItem(child: Text('Cancel')),
+                        if (model.status != 0)
+                          PopupMenuItem(child: Text(getMenuName(0))),
+                        if (model.status != 1)
+                          PopupMenuItem(child: Text(getMenuName(1))),
+                        if (model.status != 2)
+                          PopupMenuItem(child: Text(getMenuName(2))),
                       ],
                     ),
                     Chip(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadiusGeometry.circular(100),
                       ),
-                      label: Text('Completed'),
+                      label: Text(getChipName(model.status)),
                     ),
-                    Text('Remain : 2days'),
+                    Text(
+                      'Remain : ${model.deadline != null ? getRemainTime(model.deadline!) : 'N/A'}',
+                    ),
                   ],
                 ),
               ],
@@ -92,5 +99,32 @@ class TodoCardWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String getRemainTime(int milisec) {
+    String remain = '';
+    int days = DateTimeRange(
+      start: DateTime.now(),
+      end: DateTime.fromMillisecondsSinceEpoch(milisec),
+    ).duration.inDays;
+    int hours = DateTimeRange(
+      start: DateTime.now(),
+      end: DateTime.fromMillisecondsSinceEpoch(milisec),
+    ).duration.inHours;
+
+    int minutes = DateTimeRange(
+      start: DateTime.now(),
+      end: DateTime.fromMillisecondsSinceEpoch(milisec),
+    ).duration.inMinutes;
+
+    if (days != 0) {
+      remain = '$days days';
+    } else if (hours != 0) {
+      remain = '$hours hours';
+    } else {
+      remain = '$minutes minutes';
+    }
+
+    return remain;
   }
 }

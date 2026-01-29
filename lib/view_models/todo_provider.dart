@@ -5,20 +5,35 @@ import 'package:sqflite/sqflite.dart';
 
 class TodoProvider extends ChangeNotifier {
   bool _isFetchingTodod = false;
-  final List<TodoModel> _todoList = [];
+  final List<TodoModel> _todoInProgressList = [];
+  final List<TodoModel> _todoCompletedList = [];
+  final List<TodoModel> _todoCancelledList = [];
+
   DbServices dbServices = DbServices();
 
-  List get getTodoList => _todoList;
+  List getTodoList(int status) {
+    switch (status) {
+      case 0:
+        return _todoInProgressList;
+      case 1:
+        return _todoCompletedList;
+      case 2:
+        return _todoCancelledList;
+      default:
+        return [];
+    }
+  }
+
   bool get getIsFetching => _isFetchingTodod;
   Future<void> fetchTodo() async {
-    _todoList.clear();
+    _todoInProgressList.clear();
     _isFetchingTodod = true;
     notifyListeners();
     Database db = await dbServices.getDatabase;
 
     List<Map<String, dynamic>> todos = await db.query(dbServices.todoTableName);
     for (var t in todos) {
-      _todoList.add(TodoModel.fromJson(t));
+      _todoInProgressList.add(TodoModel.fromJson(t));
     }
     _isFetchingTodod = false;
     notifyListeners();
@@ -51,7 +66,7 @@ class TodoProvider extends ChangeNotifier {
     );
 
     if (count != 0) {
-      _todoList.removeWhere((element) => element.id == todoId);
+      _todoInProgressList.removeWhere((element) => element.id == todoId);
       notifyListeners();
     }
     return count;

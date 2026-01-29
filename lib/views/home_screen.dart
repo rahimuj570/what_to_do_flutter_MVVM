@@ -65,17 +65,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           AppbarStatusCardWidget(
                             title: 'In Progress',
                             icon: Icons.timelapse,
-                            quantity: 10,
+                            quantity: todoProvider.getTodoList(0).length,
                           ),
                           AppbarStatusCardWidget(
                             title: 'Completed',
                             icon: Icons.done_all,
-                            quantity: 1,
+                            quantity: todoProvider.getTodoList(1).length,
                           ),
                           AppbarStatusCardWidget(
                             title: 'Canceled',
                             icon: Icons.cancel_outlined,
-                            quantity: 20,
+                            quantity: todoProvider.getTodoList(2).length,
                           ),
                         ],
                       ),
@@ -92,10 +92,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         sliver: SliverList.separated(
                           separatorBuilder: (context, index) =>
                               SizedBox(height: 20),
-                          itemCount: todoProvider.getTodoList.length + 1,
+                          itemCount: todoProvider.getTodoList(0).length + 1,
                           itemBuilder: (context, index) {
-                            if (index == todoProvider.getTodoList.length) {
-                              return todoProvider.getTodoList.isNotEmpty
+                            if (index == todoProvider.getTodoList(0).length) {
+                              return todoProvider.getTodoList(0).isNotEmpty
                                   ? const SizedBox(height: 100)
                                   : Center(
                                       child: Column(
@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                             // Wrap each item with Slidable here
                             return TodoCardWidget(
-                              todoProvider.getTodoList[index],
+                              todoProvider.getTodoList(0)[index],
                             );
                           },
                         ),
