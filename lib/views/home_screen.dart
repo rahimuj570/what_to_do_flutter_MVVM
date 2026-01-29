@@ -63,16 +63,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         physics: NeverScrollableScrollPhysics(), // important!
                         children: [
                           AppbarStatusCardWidget(
+                            status: 0,
+
                             title: 'In Progress',
                             icon: Icons.timelapse,
                             quantity: todoProvider.getTodoList(0).length,
                           ),
                           AppbarStatusCardWidget(
+                            status: 1,
                             title: 'Completed',
                             icon: Icons.done_all,
                             quantity: todoProvider.getTodoList(1).length,
                           ),
                           AppbarStatusCardWidget(
+                            status: 2,
                             title: 'Canceled',
                             icon: Icons.cancel_outlined,
                             quantity: todoProvider.getTodoList(2).length,
@@ -92,10 +96,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         sliver: SliverList.separated(
                           separatorBuilder: (context, index) =>
                               SizedBox(height: 20),
-                          itemCount: todoProvider.getTodoList(0).length + 1,
+                          itemCount:
+                              todoProvider
+                                  .getTodoList(todoProvider.currentStatusTab)
+                                  .length +
+                              1,
                           itemBuilder: (context, index) {
-                            if (index == todoProvider.getTodoList(0).length) {
-                              return todoProvider.getTodoList(0).isNotEmpty
+                            if (index ==
+                                todoProvider
+                                    .getTodoList(todoProvider.currentStatusTab)
+                                    .length) {
+                              return todoProvider
+                                      .getTodoList(
+                                        todoProvider.currentStatusTab,
+                                      )
+                                      .isNotEmpty
                                   ? const SizedBox(height: 100)
                                   : Center(
                                       child: Column(
@@ -116,7 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                             // Wrap each item with Slidable here
                             return TodoCardWidget(
-                              todoProvider.getTodoList(0)[index],
+                              todoProvider.getTodoList(
+                                todoProvider.currentStatusTab,
+                              )[index],
                             );
                           },
                         ),
