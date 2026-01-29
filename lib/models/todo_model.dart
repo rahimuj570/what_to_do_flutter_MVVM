@@ -2,7 +2,7 @@ class TodoModel {
   final int? id;
   final String todo;
   final int? deadline;
-  final int status;
+  final int status; //0=inprogress; 1=completed; 2=cacelled
 
   TodoModel({
     this.id,

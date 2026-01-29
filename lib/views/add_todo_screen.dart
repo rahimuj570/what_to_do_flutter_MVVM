@@ -3,7 +3,9 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
+import 'package:mvvm_task_management/utils/show_snackbar.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
+import 'package:mvvm_task_management/widgets/btn_loading.dart';
 import 'package:provider/provider.dart';
 
 class AddTodoScreen extends StatefulWidget {
@@ -42,19 +44,42 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   }
 
   void craeteTodo() async {
-    DateFormat format = DateFormat.yMMMEd().add_Hm();
-    DateTime dt = format.parse(_dateTimeTEC.text);
+    DateTime? dt;
+    if (_dateTimeTEC.text.isNotEmpty) {
+      DateFormat format = DateFormat.yMMMEd().add_Hm();
+      dt = format.parse(_dateTimeTEC.text);
+    }
     TodoModel model = TodoModel(
       status: 0,
       todo: _todoTEC.text.trim(),
-      deadline: dt.microsecondsSinceEpoch,
+      deadline: dt?.microsecondsSinceEpoch,
     );
-    int count = await context.read<TodoProvider>().addTodo(model);
+    try {
+      int count = await context.read<TodoProvider>().addTodo(model);
 
-    if (count == 1) {
-      print('added');
-    } else {
-      print('error');
+      if (count != 0) {
+        if (mounted) {
+          showSnackBar(context: context, message: 'Sucessfully created');
+          _todoTEC.text = '';
+          _dateTimeTEC.text = '';
+        }
+      } else {
+        if (mounted) {
+          showSnackBar(
+            context: context,
+            message: 'Something went wrong',
+            isFailed: true,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showSnackBar(
+          context: context,
+          message: 'Something went wrong',
+          isFailed: true,
+        );
+      }
     }
   }
 
@@ -109,9 +134,15 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   ],
                 ),
                 SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: craeteTodo,
-                  child: Text('Create Todo'),
+                Consumer<TodoProvider>(
+                  builder: (context, value, child) => Visibility(
+                    visible: value.getIsCreatingTodo == false,
+                    replacement: Center(child: BtnLoading()),
+                    child: ElevatedButton(
+                      onPressed: craeteTodo,
+                      child: Text('Create Todo'),
+                    ),
+                  ),
                 ),
               ],
             ),

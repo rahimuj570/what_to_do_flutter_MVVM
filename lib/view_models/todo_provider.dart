@@ -10,6 +10,7 @@ class TodoProvider extends ChangeNotifier {
   List get getTodoList => _todoList;
   bool get getIsFetching => _isFetchingTodod;
   Future<void> fetchTodo() async {
+    _todoList.clear();
     _isFetchingTodod = true;
     notifyListeners();
     DbServices dbServices = DbServices();
