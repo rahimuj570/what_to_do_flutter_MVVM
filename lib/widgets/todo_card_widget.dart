@@ -86,7 +86,7 @@ class TodoCardWidget extends StatelessWidget {
                             child: Text(getMenuName(0)),
                             onTap: () => onTapChangeStatus(context, 0, model),
                           ),
-                        if (model.status != 1)
+                        if (model.status != 1 && model.status != 3)
                           PopupMenuItem(
                             child: Text(getMenuName(1)),
                             onTap: () {
@@ -121,26 +121,30 @@ class TodoCardWidget extends StatelessWidget {
 
   String getRemainTime(int milisec) {
     String remain = '';
-    int days = DateTimeRange(
-      start: DateTime.now(),
-      end: DateTime.fromMillisecondsSinceEpoch(milisec),
-    ).duration.inDays;
-    int hours = DateTimeRange(
-      start: DateTime.now(),
-      end: DateTime.fromMillisecondsSinceEpoch(milisec),
-    ).duration.inHours;
+    if (DateTime.now().isBefore(DateTime.fromMillisecondsSinceEpoch(milisec))) {
+      int days = DateTimeRange(
+        start: DateTime.now(),
+        end: DateTime.fromMillisecondsSinceEpoch(milisec),
+      ).duration.inDays;
+      int hours = DateTimeRange(
+        start: DateTime.now(),
+        end: DateTime.fromMillisecondsSinceEpoch(milisec),
+      ).duration.inHours;
 
-    int minutes = DateTimeRange(
-      start: DateTime.now(),
-      end: DateTime.fromMillisecondsSinceEpoch(milisec),
-    ).duration.inMinutes;
+      int minutes = DateTimeRange(
+        start: DateTime.now(),
+        end: DateTime.fromMillisecondsSinceEpoch(milisec),
+      ).duration.inMinutes;
 
-    if (days != 0) {
-      remain = '$days days';
-    } else if (hours != 0) {
-      remain = '$hours hours';
+      if (days != 0) {
+        remain = '$days days';
+      } else if (hours != 0) {
+        remain = '$hours hours';
+      } else {
+        remain = '$minutes minutes';
+      }
     } else {
-      remain = '$minutes minutes';
+      remain = "missed";
     }
 
     return remain;

@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icon(Icons.search),
                   ),
                   floating: true,
-                  expandedHeight: 240,
+                  expandedHeight: 330,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
                     title: Text(
@@ -58,9 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         right: 20,
                       ),
                       child: GridView.count(
-                        crossAxisCount: 3,
+                        crossAxisCount: 2,
+                        childAspectRatio: (4 / 2) / 1.2,
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(), // important!
+                        physics: NeverScrollableScrollPhysics(),
                         children: [
                           AppbarStatusCardWidget(
                             status: 0,
@@ -80,6 +81,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             title: 'Canceled',
                             icon: Icons.cancel_outlined,
                             quantity: todoProvider.getTodoList(2).length,
+                          ),
+                          AppbarStatusCardWidget(
+                            status: 3,
+                            title: 'Missed',
+                            icon: Icons.call_missed_outgoing_rounded,
+                            quantity: todoProvider.getTodoList(3).length,
                           ),
                         ],
                       ),

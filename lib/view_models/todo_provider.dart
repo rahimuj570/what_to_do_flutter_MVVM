@@ -9,6 +9,7 @@ class TodoProvider extends ChangeNotifier {
   final List<TodoModel> _todoInProgressList = [];
   final List<TodoModel> _todoCompletedList = [];
   final List<TodoModel> _todoCancelledList = [];
+  final List<TodoModel> _todoMissedList = [];
 
   DbServices dbServices = DbServices();
 
@@ -26,7 +27,7 @@ class TodoProvider extends ChangeNotifier {
       case 2:
         return _todoCancelledList;
       default:
-        return [];
+        return _todoMissedList;
     }
   }
 
@@ -35,18 +36,41 @@ class TodoProvider extends ChangeNotifier {
     _todoInProgressList.clear();
     _todoCancelledList.clear();
     _todoCompletedList.clear();
+    _todoMissedList.clear();
     _isFetchingTodod = true;
     notifyListeners();
     Database db = await dbServices.getDatabase;
 
     List<Map<String, dynamic>> todos = await db.query(dbServices.todoTableName);
-    for (var t in todos) {
-      if (t['status'] == 0) {
+    for (Map<String, dynamic> t in todos) {
+      bool expire = false;
+      if (t['deadline'] != null) {
+        if (DateTime.now().isAfter(
+          DateTime.fromMillisecondsSinceEpoch(t['deadline']),
+        )) {
+          expire = true;
+        }
+      }
+      if (t['status'] == 0 && expire == false) {
         _todoInProgressList.add(TodoModel.fromJson(t));
-      } else if (t['status'] == 1) {
+      } else if (t['status'] == 1 && expire == false) {
         _todoCompletedList.add(TodoModel.fromJson(t));
-      } else {
+      } else if (t['status'] == 2 && expire == false) {
         _todoCancelledList.add(TodoModel.fromJson(t));
+      } else {
+        if (t['status'] == 3) {
+          _todoMissedList.add(TodoModel.fromJson(t));
+        } else {
+          Map<String, dynamic> tmp = Map<String, dynamic>.from(t);
+          tmp['status'] = 3;
+          _todoMissedList.add(TodoModel.fromJson(tmp));
+          db.update(
+            dbServices.todoTableName,
+            tmp,
+            where: 'id=?',
+            whereArgs: [tmp['id']],
+          );
+        }
       }
     }
     _isFetchingTodod = false;
