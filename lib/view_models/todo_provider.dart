@@ -176,7 +176,14 @@ class TodoProvider extends ChangeNotifier {
       switch (newStatus) {
         case 0:
           {
+            model.deadline = null;
             _todoInProgressList.add(model);
+            await db.update(
+              dbServices.todoTableName,
+              model.toJson(),
+              where: 'id=?',
+              whereArgs: [model.id],
+            );
             break;
           }
         case 1:

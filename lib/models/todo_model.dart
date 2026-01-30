@@ -1,7 +1,7 @@
 class TodoModel {
   final int? id;
   final String todo;
-  final int? deadline;
+  int? deadline;
   int status; //0=inprogress; 1=completed; 2=cacelled; 3=missed
 
   TodoModel({
