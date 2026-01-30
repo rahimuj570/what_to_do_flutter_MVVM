@@ -71,6 +71,29 @@ class TodoProvider extends ChangeNotifier {
     return count;
   }
 
+  bool _isUpdatingTodo = false;
+  bool get getIsUpdatingTodo => _isUpdatingTodo;
+  Future<int> updateTodo(TodoModel model) async {
+    int count = 0;
+    _isUpdatingTodo = true;
+    notifyListeners();
+
+    DbServices dbServices = DbServices();
+    Database db = await dbServices.getDatabase;
+
+    count = await db.update(
+      dbServices.todoTableName,
+      model.toJson(),
+      where: 'id=?',
+      whereArgs: [model.id],
+    );
+
+    _isUpdatingTodo = false;
+    notifyListeners();
+    fetchTodo();
+    return count;
+  }
+
   Future<int> deleteTodo(int todoId) async {
     Database db = await dbServices.getDatabase;
     int count = await db.delete(

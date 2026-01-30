@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mvvm_task_management/app/app_colors.dart';
 
 void showSnackBar({
   required BuildContext context,
@@ -7,8 +8,12 @@ void showSnackBar({
 }) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
-      backgroundColor: isFailed ? Colors.red : null,
+      content: Text(
+        message,
+        style: TextStyle(color: isFailed ? null : Colors.white),
+      ),
+
+      backgroundColor: isFailed ? Colors.red : AppColors.themeColor,
     ),
   );
 }

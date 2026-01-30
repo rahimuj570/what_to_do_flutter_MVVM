@@ -8,14 +8,15 @@ import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:mvvm_task_management/widgets/btn_loading_widget.dart';
 import 'package:provider/provider.dart';
 
-class AddTodoScreen extends StatefulWidget {
-  const AddTodoScreen({super.key});
-  static String name = 'addTodoScreen';
+class EditTodoScreen extends StatefulWidget {
+  final TodoModel model;
+  const EditTodoScreen({super.key, required this.model});
+  static String name = 'EditTodoScreen';
   @override
-  State<AddTodoScreen> createState() => _AddTodoScreenState();
+  State<EditTodoScreen> createState() => _EditTodoScreenState();
 }
 
-class _AddTodoScreenState extends State<AddTodoScreen> {
+class _EditTodoScreenState extends State<EditTodoScreen> {
   final TextEditingController _todoTEC = TextEditingController();
   final TextEditingController _dateTimeTEC = TextEditingController();
   Locale l = WidgetsBinding.instance.platformDispatcher.locale;
@@ -43,23 +44,24 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     );
   }
 
-  void craeteTodo() async {
+  void updateTodo() async {
     DateTime? dt;
     if (_dateTimeTEC.text.isNotEmpty) {
       DateFormat format = DateFormat.yMMMEd().add_Hm();
       dt = format.parse(_dateTimeTEC.text);
     }
     TodoModel model = TodoModel(
-      status: 0,
+      status: widget.model.status,
+      id: widget.model.id,
       todo: _todoTEC.text.trim(),
       deadline: dt?.millisecondsSinceEpoch,
     );
     try {
-      int count = await context.read<TodoProvider>().addTodo(model);
+      int count = await context.read<TodoProvider>().updateTodo(model);
 
       if (count != 0) {
         if (mounted) {
-          showSnackBar(context: context, message: 'Sucessfully created');
+          showSnackBar(context: context, message: 'Sucessfully updated');
           _todoTEC.text = '';
           _dateTimeTEC.text = '';
         }
@@ -84,9 +86,16 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _todoTEC.text = widget.model.todo;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create Todo')),
+      appBar: AppBar(title: Text('Update Todo')),
       body: SingleChildScrollView(
         child: Form(
           child: Padding(
@@ -136,11 +145,11 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                 SizedBox(height: 20),
                 Consumer<TodoProvider>(
                   builder: (context, value, child) => Visibility(
-                    visible: value.getIsCreatingTodo == false,
+                    visible: value.getIsUpdatingTodo == false,
                     replacement: Center(child: BtnLoadingWidget()),
                     child: ElevatedButton(
-                      onPressed: craeteTodo,
-                      child: Text('Create Todo'),
+                      onPressed: updateTodo,
+                      child: Text('Update Todo'),
                     ),
                   ),
                 ),

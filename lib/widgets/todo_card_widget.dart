@@ -4,6 +4,7 @@ import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/utils/show_snackbar.dart';
 import 'package:mvvm_task_management/utils/task_status_get.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
+import 'package:mvvm_task_management/views/edit_todo_screen.dart';
 import 'package:provider/provider.dart';
 
 class TodoCardWidget extends StatelessWidget {
@@ -19,7 +20,13 @@ class TodoCardWidget extends StatelessWidget {
 
           children: [
             SlidableAction(
-              onPressed: (context) {},
+              onPressed: (context) {
+                Navigator.pushNamed(
+                  context,
+                  EditTodoScreen.name,
+                  arguments: model,
+                );
+              },
               label: 'Edit',
               icon: Icons.edit,
               backgroundColor: Colors.lightBlueAccent,

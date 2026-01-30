@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/views/add_todo_screen.dart';
+import 'package:mvvm_task_management/views/edit_todo_screen.dart';
 import 'package:mvvm_task_management/views/home_screen.dart';
 
 class AppRoute {
@@ -9,6 +11,9 @@ class AppRoute {
       widget = HomeScreen();
     } else if (settings.name == AddTodoScreen.name) {
       widget = AddTodoScreen();
+    } else if (settings.name == EditTodoScreen.name) {
+      TodoModel model = settings.arguments as TodoModel;
+      widget = EditTodoScreen(model: model);
     }
     return MaterialPageRoute(builder: (context) => widget);
   }
