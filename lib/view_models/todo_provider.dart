@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 class TodoProvider extends ChangeNotifier {
   bool _isFetchingTodod = false;
   int currentStatusTab = 0;
+  double score = 0.0;
   final List<TodoModel> _todoInProgressList = [];
   final List<TodoModel> _todoCompletedList = [];
   final List<TodoModel> _todoCancelledList = [];
@@ -64,7 +65,7 @@ class TodoProvider extends ChangeNotifier {
           Map<String, dynamic> tmp = Map<String, dynamic>.from(t);
           tmp['status'] = 3;
           _todoMissedList.add(TodoModel.fromJson(tmp));
-          db.update(
+          await db.update(
             dbServices.todoTableName,
             tmp,
             where: 'id=?',
@@ -73,6 +74,7 @@ class TodoProvider extends ChangeNotifier {
         }
       }
     }
+    score = _calculateScore();
     _isFetchingTodod = false;
     notifyListeners();
   }
@@ -128,6 +130,7 @@ class TodoProvider extends ChangeNotifier {
 
     if (count != 0) {
       _todoInProgressList.removeWhere((element) => element.id == todoId);
+      score = _calculateScore();
       notifyListeners();
     }
     return count;
@@ -160,9 +163,13 @@ class TodoProvider extends ChangeNotifier {
             break;
           }
 
-        default:
+        case 2:
           {
             _todoCancelledList.removeWhere((element) => element.id == model.id);
+          }
+        default:
+          {
+            _todoMissedList.removeWhere((element) => element.id == model.id);
           }
       }
 
@@ -177,15 +184,37 @@ class TodoProvider extends ChangeNotifier {
             _todoCompletedList.add(model);
             break;
           }
+        case 3:
+          {
+            _todoMissedList.add(model);
+            break;
+          }
 
         default:
           {
             _todoCancelledList.add(model);
           }
       }
+      score = _calculateScore();
       notifyListeners();
     }
 
     return count;
+  }
+
+  double _calculateScore() {
+    int inProgress = getTodoList(0).length;
+    int complete = getTodoList(1).length;
+
+    int cancel = getTodoList(2).length;
+    int miss = getTodoList(3).length;
+
+    int total = (inProgress + complete + miss + cancel) * 2;
+    double res =
+        ((inProgress * 1 + complete * 2 + (cancel * -1) + (miss * -2)) /
+            total) *
+        100;
+    print(res);
+    return res;
   }
 }

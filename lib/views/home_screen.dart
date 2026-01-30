@@ -7,6 +7,7 @@ import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
 import 'package:mvvm_task_management/widgets/full_page_loading_widget.dart';
 import 'package:mvvm_task_management/widgets/todo_card_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,15 +41,62 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icon(Icons.search),
                   ),
                   floating: true,
-                  expandedHeight: 330,
+                  expandedHeight: 400,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
-                    title: Text(
-                      'What To Do 👀❗',
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    title: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 180,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SfLinearGauge(
+                              showTicks: false,
+                              labelPosition: LinearLabelPosition.outside,
+                              markerPointers: [
+                                LinearShapePointer(
+                                  position: LinearElementPosition.inside,
+                                  height: 10,
+                                  value: todoProvider.score,
+                                  shapeType: LinearShapePointerType.triangle,
+                                ),
+                              ],
+                              barPointers: [
+                                LinearBarPointer(
+                                  borderColor: Colors.black,
+                                  value: 100,
+                                  color: Colors.green,
+                                ),
+                                LinearBarPointer(
+                                  value: 70,
+                                  color: Colors.orange,
+                                ),
+                                LinearBarPointer(value: 35, color: Colors.red),
+                              ],
+                              onGenerateLabels: () {
+                                return [
+                                  LinearAxisLabel(text: 'Lazy', value: 0),
+                                  LinearAxisLabel(text: 'Active', value: 50),
+                                  LinearAxisLabel(
+                                    text: 'Proactive',
+                                    value: 100,
+                                  ),
+                                ];
+                              },
+                            ),
+                          ),
+                        ),
+
+                        Text(
+                          'What To Do 👀❗',
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
                     ),
                     centerTitle: true,
                     background: Padding(
