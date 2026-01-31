@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 class TodoProvider extends ChangeNotifier {
   bool _isFetchingTodod = false;
   int currentStatusTab = 0;
+  bool textRecognizing = false;
   double score = 0.0;
   final List<TodoModel> _todoInProgressList = [];
   final List<TodoModel> _todoCompletedList = [];
@@ -13,6 +14,11 @@ class TodoProvider extends ChangeNotifier {
   final List<TodoModel> _todoMissedList = [];
 
   DbServices dbServices = DbServices();
+
+  set changeTextREcognizingStatus(bool status) {
+    textRecognizing = status;
+    notifyListeners();
+  }
 
   void changeCurrentStatusTab(int status) {
     currentStatusTab = status;
@@ -221,7 +227,6 @@ class TodoProvider extends ChangeNotifier {
         ((inProgress * 1 + complete * 2 + (cancel * -1) + (miss * -2)) /
             total) *
         100;
-    print(res);
     return res;
   }
 }

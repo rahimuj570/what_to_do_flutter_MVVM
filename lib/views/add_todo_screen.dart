@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
@@ -16,6 +20,8 @@ class AddTodoScreen extends StatefulWidget {
 }
 
 class _AddTodoScreenState extends State<AddTodoScreen> {
+  final ImagePicker _picker = ImagePicker();
+  XFile? _file;
   final TextEditingController _todoTEC = TextEditingController();
   final TextEditingController _dateTimeTEC = TextEditingController();
   Locale l = WidgetsBinding.instance.platformDispatcher.locale;
@@ -97,9 +103,24 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   onTapOutside: (event) {
                     FocusScope.of(context).unfocus();
                   },
+
                   maxLines: 3,
                   controller: _todoTEC,
-                  decoration: InputDecoration(labelText: 'What to do?'),
+                  decoration: InputDecoration(
+                    labelText: 'What to do?',
+                    suffix: Consumer<TodoProvider>(
+                      builder: (context, value, child) => Visibility(
+                        visible: value.textRecognizing == false,
+                        replacement: CircularProgressIndicator(
+                          backgroundColor: AppColors.themeColor,
+                        ),
+                        child: IconButton(
+                          onPressed: () => _uploadImage(context),
+                          icon: Icon(Icons.camera_alt_outlined),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -150,5 +171,50 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _uploadImage(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo_library),
+              title: Text('Gallery'),
+              onTap: () {
+                _pickImage(ImageSource.gallery);
+                Navigator.of(context).pop();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_camera),
+              title: Text('Camera'),
+              onTap: () {
+                _pickImage(ImageSource.camera);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _pickImage(ImageSource source) async {
+    TodoProvider tp = context.read<TodoProvider>();
+    tp.changeTextREcognizingStatus = true;
+    _file = await _picker.pickImage(source: source);
+    if (_file != null) {
+      final InputImage inputImage = InputImage.fromFilePath(_file!.path);
+      final textRecognizer = TextRecognizer();
+      final RecognizedText recognizedText = await textRecognizer.processImage(
+        inputImage,
+      );
+
+      String text = recognizedText.text;
+      _todoTEC.text = text;
+      tp.changeTextREcognizingStatus = false;
+    }
   }
 }
