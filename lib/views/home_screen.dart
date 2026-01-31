@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
+import 'package:mvvm_task_management/view_models/theme_provider.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:mvvm_task_management/views/add_todo_screen.dart';
 import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
@@ -46,17 +47,82 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     icon: Icon(Icons.search),
                   ),
+                  actions: [
+                    SizedBox(
+                      width: 40,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Consumer<ThemeProvider>(
+                          builder: (context, themeProvider, child) => Switch(
+                            value: themeProvider.isDark,
+                            onChanged: (value) {
+                              themeProvider.toggleTheme();
+                            },
+                            thumbIcon: WidgetStatePropertyAll(
+                              themeProvider.isDark
+                                  ? Icon(Icons.dark_mode_outlined)
+                                  : Icon(Icons.light_mode),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                   floating: true,
-                  expandedHeight: 400,
+                  expandedHeight: 370,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
-                    title: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 180,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                    title: Text(
+                      'What To Do 👀❗',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    centerTitle: true,
+                    background: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 50,
+                        left: 20,
+                        right: 20,
+                      ),
+                      child: Column(
+                        children: [
+                          GridView.count(
+                            crossAxisCount: 2,
+                            childAspectRatio: (4 / 2) / 1.2,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            children: [
+                              AppbarStatusCardWidget(
+                                status: 0,
+
+                                title: 'In Progress',
+                                icon: Icons.timelapse,
+                                quantity: todoProvider.getTodoList(0).length,
+                              ),
+                              AppbarStatusCardWidget(
+                                status: 1,
+                                title: 'Completed',
+                                icon: Icons.done_all,
+                                quantity: todoProvider.getTodoList(1).length,
+                              ),
+                              AppbarStatusCardWidget(
+                                status: 2,
+                                title: 'Canceled',
+                                icon: Icons.cancel_outlined,
+                                quantity: todoProvider.getTodoList(2).length,
+                              ),
+                              AppbarStatusCardWidget(
+                                status: 3,
+                                title: 'Missed',
+                                icon: Icons.call_missed_outgoing_rounded,
+                                quantity: todoProvider.getTodoList(3).length,
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
                             child: SfLinearGauge(
                               showTicks: false,
                               labelPosition: LinearLabelPosition.outside,
@@ -91,56 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ];
                               },
                             ),
-                          ),
-                        ),
-
-                        Text(
-                          'What To Do 👀❗',
-                          style: Theme.of(context).textTheme.titleMedium!
-                              .copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    ),
-                    centerTitle: true,
-                    background: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 50,
-                        left: 20,
-                        right: 20,
-                      ),
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        childAspectRatio: (4 / 2) / 1.2,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          AppbarStatusCardWidget(
-                            status: 0,
-
-                            title: 'In Progress',
-                            icon: Icons.timelapse,
-                            quantity: todoProvider.getTodoList(0).length,
-                          ),
-                          AppbarStatusCardWidget(
-                            status: 1,
-                            title: 'Completed',
-                            icon: Icons.done_all,
-                            quantity: todoProvider.getTodoList(1).length,
-                          ),
-                          AppbarStatusCardWidget(
-                            status: 2,
-                            title: 'Canceled',
-                            icon: Icons.cancel_outlined,
-                            quantity: todoProvider.getTodoList(2).length,
-                          ),
-                          AppbarStatusCardWidget(
-                            status: 3,
-                            title: 'Missed',
-                            icon: Icons.call_missed_outgoing_rounded,
-                            quantity: todoProvider.getTodoList(3).length,
                           ),
                         ],
                       ),

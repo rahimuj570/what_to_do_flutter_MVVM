@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/utils/show_snackbar.dart';
 import 'package:mvvm_task_management/utils/task_status_get.dart';
+import 'package:mvvm_task_management/view_models/theme_provider.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:mvvm_task_management/views/edit_todo_screen.dart';
 import 'package:provider/provider.dart';
@@ -13,8 +14,8 @@ class TodoCardWidget extends StatelessWidget {
   final TodoModel model;
   @override
   Widget build(BuildContext context) {
-    return Consumer<TodoProvider>(
-      builder: (context, todoProvider, child) => Slidable(
+    return Consumer2<TodoProvider, ThemeProvider>(
+      builder: (context, todoProvider, themeProvider, child) => Slidable(
         endActionPane: ActionPane(
           motion: DrawerMotion(),
 
@@ -66,7 +67,7 @@ class TodoCardWidget extends StatelessWidget {
               bottomLeft: Radius.circular(10),
             ),
           ),
-          color: Colors.white,
+          color: themeProvider.isDark ? null : Colors.white,
           elevation: 1,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
