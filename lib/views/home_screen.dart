@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
+import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:mvvm_task_management/views/add_todo_screen.dart';
 import 'package:mvvm_task_management/widgets/appbar_status_card_widget.dart';
@@ -37,7 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
               slivers: [
                 SliverAppBar(
                   leading: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showSearch(
+                        context: context,
+                        delegate: CustomSearchDeligate(context: context),
+                      );
+                    },
                     icon: Icon(Icons.search),
                   ),
                   floating: true,
@@ -206,6 +212,124 @@ class _HomeScreenState extends State<HomeScreen> {
           foregroundColor: Colors.white,
           child: Icon(Icons.add),
         ),
+      ),
+    );
+  }
+}
+
+class CustomSearchDeligate extends SearchDelegate {
+  final BuildContext context;
+  CustomSearchDeligate({required this.context}) {
+    all.clear();
+    all.addAll(todoProvider.getTodoList(0) as Iterable<TodoModel>);
+    all.addAll(todoProvider.getTodoList(1) as Iterable<TodoModel>);
+    all.addAll(todoProvider.getTodoList(2) as Iterable<TodoModel>);
+    all.addAll(todoProvider.getTodoList(3) as Iterable<TodoModel>);
+  }
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context).copyWith(
+      textTheme: Theme.of(
+        context,
+      ).textTheme.copyWith(titleLarge: TextStyle(color: Colors.white)),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(color: Colors.white),
+      ),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.white),
+    );
+  }
+
+  TodoProvider get todoProvider => context.read<TodoProvider>();
+  List<TodoModel> searchResult = [];
+  List<TodoModel> all = [];
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+    return [
+      IconButton(
+        onPressed: () {
+          query = '';
+        },
+        icon: Icon(Icons.clear),
+      ),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    // TODO: implement buildLeading
+    return IconButton(
+      onPressed: () {
+        close(context, null);
+      },
+      icon: Icon(Icons.arrow_back_rounded),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+      child: ListView.separated(
+        separatorBuilder: (context, index) => SizedBox(height: 20),
+        itemCount: searchResult.length + 1,
+        itemBuilder: (context, index) {
+          if (index == searchResult.length) {
+            return searchResult.isNotEmpty
+                ? const SizedBox(height: 100)
+                : Center(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.folder_open_sharp, size: 50),
+                        Text(
+                          'Nothing to do 👀',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                      ],
+                    ),
+                  );
+          }
+          return TodoCardWidget(searchResult[index]);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    searchResult.clear();
+
+    for (TodoModel s in all) {
+      if (s.todo.contains(query)) {
+        searchResult.add(s);
+      }
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+      child: ListView.separated(
+        separatorBuilder: (context, index) => SizedBox(height: 20),
+        itemCount: searchResult.length + 1,
+        itemBuilder: (context, index) {
+          if (index == searchResult.length) {
+            return searchResult.isNotEmpty
+                ? const SizedBox(height: 100)
+                : Center(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.folder_open_sharp, size: 50),
+                        Text(
+                          'Nothing to do 👀',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                      ],
+                    ),
+                  );
+          }
+          return TodoCardWidget(searchResult[index]);
+        },
       ),
     );
   }
