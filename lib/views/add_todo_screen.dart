@@ -212,7 +212,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
 
       String text = recognizedText.text;
       _todoTEC.text = text;
-      tp.changeTextREcognizingStatus = false;
     }
+    tp.changeTextREcognizingStatus = false;
   }
 }
