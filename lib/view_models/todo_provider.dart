@@ -8,16 +8,26 @@ class TodoProvider extends ChangeNotifier {
   bool _isFetchingTodod = false;
   int currentStatusTab = 0;
   bool textRecognizing = false;
+  bool sortDESC = true;
   double score = 0.0;
-  final List<TodoModel> _todoInProgressList = [];
-  final List<TodoModel> _todoCompletedList = [];
-  final List<TodoModel> _todoCancelledList = [];
-  final List<TodoModel> _todoMissedList = [];
+  List<TodoModel> _todoInProgressList = [];
+  List<TodoModel> _todoCompletedList = [];
+  List<TodoModel> _todoCancelledList = [];
+  List<TodoModel> _todoMissedList = [];
 
   DbServices dbServices = DbServices();
 
   set changeTextREcognizingStatus(bool status) {
     textRecognizing = status;
+    notifyListeners();
+  }
+
+  void changeSortStatus() {
+    _todoInProgressList = _todoInProgressList.reversed.toList();
+    _todoCancelledList = _todoCancelledList.reversed.toList();
+    _todoCompletedList = _todoCompletedList.reversed.toList();
+    _todoMissedList = _todoMissedList.reversed.toList();
+    sortDESC = !sortDESC;
     notifyListeners();
   }
 
@@ -53,7 +63,10 @@ class TodoProvider extends ChangeNotifier {
     notifyListeners();
     Database db = await dbServices.getDatabase;
 
-    List<Map<String, dynamic>> todos = await db.query(dbServices.todoTableName);
+    List<Map<String, dynamic>> todos = await db.query(
+      dbServices.todoTableName,
+      orderBy: 'id desc',
+    );
     for (Map<String, dynamic> t in todos) {
       bool expire = false;
       if (t['deadline'] != null) {

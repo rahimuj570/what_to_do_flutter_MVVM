@@ -164,6 +164,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            todoProvider.sortDESC
+                                ? Icons.arrow_downward
+                                : Icons.arrow_upward,
+                          ),
+                          onPressed: () {
+                            todoProvider.changeSortStatus();
+                          },
+                        ),
+                        Text(
+                          "Sort",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 todoProvider.getIsFetching
                     ? SliverToBoxAdapter(child: FullPageLoadingWidget())
                     : SliverPadding(
