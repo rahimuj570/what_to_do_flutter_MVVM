@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/services/db_services.dart';
+import 'package:mvvm_task_management/services/notification_servicee.dart';
 import 'package:sqflite/sqflite.dart';
 
 class TodoProvider extends ChangeNotifier {
@@ -97,6 +98,19 @@ class TodoProvider extends ChangeNotifier {
 
     count = await db.insert(dbServices.todoTableName, model.toJson());
 
+    if (count != 0) {
+      if (DateTime.fromMillisecondsSinceEpoch(
+        model.deadline! - (10 * 60 * 1000),
+      ).isAfter(DateTime.now())) {
+        debugPrint('created schedule notification');
+        NotificationService.showNotification(
+          id: count,
+          title: 'Reminder',
+          body: model.todo,
+          deadline: (model.deadline! - (10 * 60 * 1000)),
+        );
+      }
+    }
     _isCraetingTodo = false;
     notifyListeners();
     fetchTodo();
