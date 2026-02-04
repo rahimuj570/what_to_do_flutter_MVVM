@@ -23,7 +23,11 @@ class TodoProvider extends ChangeNotifier {
 
   void changeCurrentStatusTab(int status) {
     currentStatusTab = status;
-    notifyListeners();
+    if (currentStatusTab == 3) {
+      fetchTodo();
+    } else {
+      notifyListeners();
+    }
   }
 
   List getTodoList(int status) {
@@ -98,18 +102,40 @@ class TodoProvider extends ChangeNotifier {
 
     count = await db.insert(dbServices.todoTableName, model.toJson());
 
+    //Before 10Min
     if (count != 0) {
       if (DateTime.fromMillisecondsSinceEpoch(
         model.deadline! - (10 * 60 * 1000),
       ).isAfter(DateTime.now())) {
-        debugPrint('created schedule notification');
+        debugPrint('creted schedule notification');
         NotificationService.showNotification(
-          id: count,
+          id: count * 10 + 2,
           title: 'Reminder',
           body: model.todo,
           deadline: (model.deadline! - (10 * 60 * 1000)),
         );
       }
+
+      //Before 30Min
+      if (DateTime.fromMillisecondsSinceEpoch(
+        model.deadline! - (30 * 60 * 1000),
+      ).isAfter(DateTime.now())) {
+        debugPrint('creted schedule notification');
+        NotificationService.showNotification(
+          id: count * 10 + 1,
+          title: 'Reminder',
+          body: model.todo,
+          deadline: (model.deadline! - (30 * 60 * 1000)),
+        );
+      }
+
+      //After end
+      NotificationService.showNotification(
+        id: count * 10 + 0,
+        title: 'Missed',
+        body: 'You missed - ${model.todo}',
+        deadline: (model.deadline!),
+      );
     }
     _isCraetingTodo = false;
     notifyListeners();
