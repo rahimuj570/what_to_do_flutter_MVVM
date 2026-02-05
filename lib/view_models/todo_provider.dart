@@ -2,32 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/services/db_services.dart';
 import 'package:mvvm_task_management/services/notification_servicee.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class TodoProvider extends ChangeNotifier {
   bool _isFetchingTodod = false;
   int currentStatusTab = 0;
   bool textRecognizing = false;
-  bool sortDESC = true;
+  bool _sortDESC = true;
   double score = 0.0;
   List<TodoModel> _todoInProgressList = [];
   List<TodoModel> _todoCompletedList = [];
   List<TodoModel> _todoCancelledList = [];
   List<TodoModel> _todoMissedList = [];
 
+  TodoProvider() {
+    _fetchSavedSort();
+  }
+
   DbServices dbServices = DbServices();
 
   set changeTextREcognizingStatus(bool status) {
     textRecognizing = status;
-    notifyListeners();
-  }
-
-  void changeSortStatus() {
-    _todoInProgressList = _todoInProgressList.reversed.toList();
-    _todoCancelledList = _todoCancelledList.reversed.toList();
-    _todoCompletedList = _todoCompletedList.reversed.toList();
-    _todoMissedList = _todoMissedList.reversed.toList();
-    sortDESC = !sortDESC;
     notifyListeners();
   }
 
@@ -65,7 +61,7 @@ class TodoProvider extends ChangeNotifier {
 
     List<Map<String, dynamic>> todos = await db.query(
       dbServices.todoTableName,
-      orderBy: 'id desc',
+      orderBy: _sortDESC ? 'id desc' : 'id',
     );
     for (Map<String, dynamic> t in todos) {
       bool expire = false;
@@ -281,5 +277,27 @@ class TodoProvider extends ChangeNotifier {
             total) *
         100;
     return res;
+  }
+
+  // SHORT TODO
+
+  bool get isDESC => _sortDESC;
+
+  void toggleSort() async {
+    _sortDESC = !_sortDESC;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setBool('isDESC', _sortDESC);
+
+    _todoInProgressList = _todoInProgressList.reversed.toList();
+    _todoCancelledList = _todoCancelledList.reversed.toList();
+    _todoCompletedList = _todoCompletedList.reversed.toList();
+    _todoMissedList = _todoMissedList.reversed.toList();
+    notifyListeners();
+  }
+
+  Future<void> _fetchSavedSort() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    _sortDESC = sharedPreferences.getBool('isDESC') ?? true;
+    notifyListeners();
   }
 }

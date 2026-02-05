@@ -171,12 +171,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         IconButton(
                           icon: Icon(
-                            todoProvider.sortDESC
+                            todoProvider.isDESC
                                 ? Icons.arrow_downward
                                 : Icons.arrow_upward,
                           ),
                           onPressed: () {
-                            todoProvider.changeSortStatus();
+                            todoProvider.toggleSort();
                           },
                         ),
                         Text(
