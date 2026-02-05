@@ -3,7 +3,7 @@ import 'package:mvvm_task_management/app/app_route.dart';
 import 'package:mvvm_task_management/app/app_theme.dart';
 import 'package:mvvm_task_management/view_models/theme_provider.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
-import 'package:mvvm_task_management/views/home_screen.dart';
+import 'package:mvvm_task_management/views/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 class TodoApp extends StatefulWidget {
@@ -27,7 +27,7 @@ class _TodoAppState extends State<TodoApp> {
           darkTheme: AppTheme.dark,
           themeMode: themeProvider.getTheme,
           onGenerateRoute: (settings) => AppRoute.appRoutes(settings),
-          initialRoute: HomeScreen.name,
+          initialRoute: SplashScreen.name,
         ),
       ),
     );

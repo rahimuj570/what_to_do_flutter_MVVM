@@ -3,6 +3,7 @@ import 'package:mvvm_task_management/models/todo_model.dart';
 import 'package:mvvm_task_management/views/add_todo_screen.dart';
 import 'package:mvvm_task_management/views/edit_todo_screen.dart';
 import 'package:mvvm_task_management/views/home_screen.dart';
+import 'package:mvvm_task_management/views/splash_screen.dart';
 
 class AppRoute {
   static Route<dynamic>? appRoutes(RouteSettings settings) {
@@ -14,6 +15,8 @@ class AppRoute {
     } else if (settings.name == EditTodoScreen.name) {
       TodoModel model = settings.arguments as TodoModel;
       widget = EditTodoScreen(model: model);
+    } else if (settings.name == SplashScreen.name) {
+      widget = SplashScreen();
     }
     return MaterialPageRoute(builder: (context) => widget);
   }
