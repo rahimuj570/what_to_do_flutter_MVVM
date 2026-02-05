@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
@@ -204,15 +205,46 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     tp.changeTextREcognizingStatus = true;
     _file = await _picker.pickImage(source: source);
     if (_file != null) {
-      final InputImage inputImage = InputImage.fromFilePath(_file!.path);
-      final textRecognizer = TextRecognizer();
-      final RecognizedText recognizedText = await textRecognizer.processImage(
-        inputImage,
-      );
+      CroppedFile? cropedFile = await _cropImage(_file!);
+      if (cropedFile != null) {
+        final InputImage inputImage = InputImage.fromFilePath(cropedFile.path);
+        final textRecognizer = TextRecognizer();
+        final RecognizedText recognizedText = await textRecognizer.processImage(
+          inputImage,
+        );
 
-      String text = recognizedText.text;
-      _todoTEC.text = text;
+        String text = recognizedText.text;
+        _todoTEC.text = text;
+      }
     }
     tp.changeTextREcognizingStatus = false;
   }
+
+  Future<CroppedFile?> _cropImage(XFile imageFile) async {
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: imageFile.path,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Cropper',
+          toolbarColor: AppColors.themeColor,
+          toolbarWidgetColor: Colors.white,
+          lockAspectRatio: false,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.square,
+            CropAspectRatioPresetCustom(),
+          ],
+        ),
+      ],
+    );
+    return croppedFile;
+  }
+}
+
+class CropAspectRatioPresetCustom implements CropAspectRatioPresetData {
+  @override
+  (int, int)? get data => (2, 3);
+
+  @override
+  String get name => '2x3 (customized)';
 }
