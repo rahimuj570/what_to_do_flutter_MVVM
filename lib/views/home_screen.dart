@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context, themeProvider, child) => Switch(
                             value: themeProvider.isDark,
                             onChanged: (value) {
-                              themeProvider.toggleTheme();
+                              themeProvider.toggleTheme(isDark: value);
                             },
                             thumbIcon: WidgetStatePropertyAll(
                               themeProvider.isDark
