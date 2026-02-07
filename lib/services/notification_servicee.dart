@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -7,7 +6,9 @@ import 'package:timezone/timezone.dart' as tz;
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse response) {
   // This will fire even if the app is terminated
-  print('Background NotificationResponse: ${response.actionId}');
+  // debugPrint(
+  //   'Background NotificationResponse: ${response.actionId} and ${response.id}',
+  // );
 }
 
 class NotificationService {
@@ -27,16 +28,18 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        debugPrint('Foreground NotificationResponse: ${response.actionId}');
-        if (response.actionId == 'id_view') {
-          debugPrint('View clicked');
-        } else if (response.actionId == 'id_complete') {
-          debugPrint('Complete clicked');
-        } else if (response.actionId == 'id_cancel') {
-          debugPrint('Cancel clicked');
-        } else {
-          debugPrint('Notification body tapped');
-        }
+        // debugPrint('Foreground NotificationResponse: ${response.actionId}');
+
+        // if (response.actionId == 'id_view') {
+        //   debugPrint('View clicked');
+        //   debugPrint(response.id.toString());
+        // } else if (response.actionId == 'id_complete') {
+        //   debugPrint('Complete clicked');
+        // } else if (response.actionId == 'id_cancel') {
+        //   debugPrint('Cancel clicked');
+        // } else {
+        //   debugPrint('Notification body tapped');
+        // }
       },
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
@@ -54,6 +57,7 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           showWhen: true,
+          actions: [AndroidNotificationAction('id_view', 'title')],
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -82,11 +86,11 @@ class NotificationService {
       priority: Priority.high,
       showWhen: true,
 
-      actions: <AndroidNotificationAction>[
-        AndroidNotificationAction('id_view', 'View'),
-        AndroidNotificationAction('id_complete', 'Complete'),
-        AndroidNotificationAction('id_cancel', 'Cancel'),
-      ],
+      // actions: <AndroidNotificationAction>[
+      //   AndroidNotificationAction('id_view', 'View'),
+      //   AndroidNotificationAction('id_complete', 'Complete'),
+      //   AndroidNotificationAction('id_cancel', 'Cancel'),
+      // ],
     );
 
     // Combined notification details
@@ -108,7 +112,7 @@ class NotificationService {
   }
 
   // Cancel a specific notification
-  Future<void> cancelNotification(int id) async {
+  static Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id: id);
   }
 

@@ -113,38 +113,7 @@ class TodoProvider extends ChangeNotifier {
 
     //Before 10Min
     if (count != 0) {
-      if (DateTime.fromMillisecondsSinceEpoch(
-        model.deadline! - (10 * 60 * 1000),
-      ).isAfter(DateTime.now())) {
-        debugPrint('creted schedule notification');
-        NotificationService.showNotification(
-          id: count * 10 + 2,
-          title: 'Reminder',
-          body: model.todo,
-          deadline: (model.deadline! - (10 * 60 * 1000)),
-        );
-      }
-
-      //Before 30Min
-      if (DateTime.fromMillisecondsSinceEpoch(
-        model.deadline! - (30 * 60 * 1000),
-      ).isAfter(DateTime.now())) {
-        debugPrint('creted schedule notification');
-        NotificationService.showNotification(
-          id: count * 10 + 1,
-          title: 'Reminder',
-          body: model.todo,
-          deadline: (model.deadline! - (30 * 60 * 1000)),
-        );
-      }
-
-      //After end
-      NotificationService.showNotification(
-        id: count * 10 + 0,
-        title: 'Missed',
-        body: 'You missed - ${model.todo}',
-        deadline: (model.deadline!),
-      );
+      _createNotification(count, model);
     }
     _isCraetingTodo = false;
     notifyListeners();
@@ -169,6 +138,10 @@ class TodoProvider extends ChangeNotifier {
       whereArgs: [model.id],
     );
 
+    if (count != 0) {
+      _createNotification(model.id!, model);
+    }
+
     _isUpdatingTodo = false;
     notifyListeners();
     fetchTodo();
@@ -186,6 +159,7 @@ class TodoProvider extends ChangeNotifier {
     if (count != 0) {
       _todoInProgressList.removeWhere((element) => element.id == todoId);
       score = _calculateScore();
+      _cancelNotification(todoId);
       notifyListeners();
     }
     return count;
@@ -196,6 +170,7 @@ class TodoProvider extends ChangeNotifier {
     Database db = await dbServices.getDatabase;
     int oldStatus = model.status;
     model.status = newStatus;
+    model.deadline = null;
     count = await db.update(
       dbServices.todoTableName,
       model.toJson(),
@@ -227,6 +202,8 @@ class TodoProvider extends ChangeNotifier {
             _todoMissedList.removeWhere((element) => element.id == model.id);
           }
       }
+
+      _cancelNotification(model.id!);
 
       switch (newStatus) {
         case 0:
@@ -299,5 +276,44 @@ class TodoProvider extends ChangeNotifier {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     _sortDESC = sharedPreferences.getBool('isDESC') ?? true;
     notifyListeners();
+  }
+
+  void _cancelNotification(int id) async {
+    await NotificationService.cancelNotification(id * 10 + 0);
+  }
+
+  void _createNotification(int id, TodoModel model) {
+    if (DateTime.fromMillisecondsSinceEpoch(
+      model.deadline! - (10 * 60 * 1000),
+    ).isAfter(DateTime.now())) {
+      debugPrint('creted schedule notification');
+      NotificationService.showNotification(
+        id: id * 10 + 2,
+        title: 'Reminder - 10 minutes left',
+        body: model.todo,
+        deadline: (model.deadline! - (10 * 60 * 1000)),
+      );
+    }
+
+    //Before 30Min
+    if (DateTime.fromMillisecondsSinceEpoch(
+      model.deadline! - (30 * 60 * 1000),
+    ).isAfter(DateTime.now())) {
+      debugPrint('creted schedule notification');
+      NotificationService.showNotification(
+        id: id * 10 + 1,
+        title: 'Reminder - 30 minutes left',
+        body: model.todo,
+        deadline: (model.deadline! - (30 * 60 * 1000)),
+      );
+    }
+
+    //After end
+    NotificationService.showNotification(
+      id: id * 10 + 0,
+      title: 'Missed',
+      body: 'You missed - ${model.todo}',
+      deadline: (model.deadline!),
+    );
   }
 }
