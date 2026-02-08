@@ -62,8 +62,7 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
       if (count != 0) {
         if (mounted) {
           showSnackBar(context: context, message: 'Sucessfully updated');
-          _todoTEC.text = '';
-          _dateTimeTEC.text = '';
+          Navigator.pop(context);
         }
       } else {
         if (mounted) {
@@ -90,6 +89,15 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
     // TODO: implement initState
     super.initState();
     _todoTEC.text = widget.model.todo;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+
+    _todoTEC.dispose();
+    _dateTimeTEC.dispose();
+    super.dispose();
   }
 
   @override

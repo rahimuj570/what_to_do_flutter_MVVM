@@ -89,6 +89,14 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    _dateTimeTEC.dispose();
+    _dateTimeTEC.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Create Todo')),

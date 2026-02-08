@@ -23,6 +23,7 @@ class _TodoAppState extends State<TodoApp> {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) => MaterialApp(
+          debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: themeProvider.getTheme,

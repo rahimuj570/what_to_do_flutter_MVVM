@@ -111,8 +111,7 @@ class TodoProvider extends ChangeNotifier {
 
     count = await db.insert(dbServices.todoTableName, model.toJson());
 
-    //Before 10Min
-    if (count != 0) {
+    if (count != 0 && model.deadline != null) {
       _createNotification(count, model);
     }
     _isCraetingTodo = false;
@@ -138,7 +137,7 @@ class TodoProvider extends ChangeNotifier {
       whereArgs: [model.id],
     );
 
-    if (count != 0) {
+    if (count != 0 && model.deadline != null) {
       _createNotification(model.id!, model);
     }
 
@@ -148,7 +147,7 @@ class TodoProvider extends ChangeNotifier {
     return count;
   }
 
-  Future<int> deleteTodo(int todoId) async {
+  Future<int> deleteTodo(int todoId, int status) async {
     Database db = await dbServices.getDatabase;
     int count = await db.delete(
       dbServices.todoTableName,
@@ -157,7 +156,15 @@ class TodoProvider extends ChangeNotifier {
     );
 
     if (count != 0) {
-      _todoInProgressList.removeWhere((element) => element.id == todoId);
+      if (status == 0) {
+        _todoInProgressList.removeWhere((element) => element.id == todoId);
+      } else if (status == 1) {
+        _todoCompletedList.removeWhere((element) => element.id == todoId);
+      } else if (status == 2) {
+        _todoCancelledList.removeWhere((element) => element.id == todoId);
+      } else {
+        _todoMissedList.removeWhere((element) => element.id == todoId);
+      }
       score = _calculateScore();
       _cancelNotification(todoId);
       notifyListeners();

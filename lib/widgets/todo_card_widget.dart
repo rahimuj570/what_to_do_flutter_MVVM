@@ -38,7 +38,10 @@ class TodoCardWidget extends StatelessWidget {
                 bottomRight: Radius.circular(10),
               ),
               onPressed: (context) async {
-                int count = await todoProvider.deleteTodo(model.id!);
+                int count = await todoProvider.deleteTodo(
+                  model.id!,
+                  model.status,
+                );
                 if (context.mounted) {
                   if (count != 0) {
                     showSnackBar(
