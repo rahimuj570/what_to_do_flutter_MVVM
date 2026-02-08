@@ -17,6 +17,7 @@ class EditTodoScreen extends StatefulWidget {
 }
 
 class _EditTodoScreenState extends State<EditTodoScreen> {
+  final GlobalKey<FormState> _fKey = GlobalKey<FormState>();
   final TextEditingController _todoTEC = TextEditingController();
   final TextEditingController _dateTimeTEC = TextEditingController();
   Locale l = WidgetsBinding.instance.platformDispatcher.locale;
@@ -45,26 +46,36 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
   }
 
   void updateTodo() async {
-    DateTime? dt;
-    if (_dateTimeTEC.text.isNotEmpty) {
-      DateFormat format = DateFormat.yMMMEd().add_Hm();
-      dt = format.parse(_dateTimeTEC.text);
-    }
-    TodoModel model = TodoModel(
-      status: widget.model.status,
-      id: widget.model.id,
-      todo: _todoTEC.text.trim(),
-      deadline: dt?.millisecondsSinceEpoch,
-    );
-    try {
-      int count = await context.read<TodoProvider>().updateTodo(model);
+    if (_fKey.currentState!.validate()) {
+      DateTime? dt;
+      if (_dateTimeTEC.text.isNotEmpty) {
+        DateFormat format = DateFormat.yMMMEd().add_Hm();
+        dt = format.parse(_dateTimeTEC.text);
+      }
+      TodoModel model = TodoModel(
+        status: widget.model.status,
+        id: widget.model.id,
+        todo: _todoTEC.text.trim(),
+        deadline: dt?.millisecondsSinceEpoch,
+      );
+      try {
+        int count = await context.read<TodoProvider>().updateTodo(model);
 
-      if (count != 0) {
-        if (mounted) {
-          showSnackBar(context: context, message: 'Sucessfully updated');
-          Navigator.pop(context);
+        if (count != 0) {
+          if (mounted) {
+            showSnackBar(context: context, message: 'Sucessfully updated');
+            Navigator.pop(context);
+          }
+        } else {
+          if (mounted) {
+            showSnackBar(
+              context: context,
+              message: 'Something went wrong',
+              isFailed: true,
+            );
+          }
         }
-      } else {
+      } catch (e) {
         if (mounted) {
           showSnackBar(
             context: context,
@@ -72,14 +83,6 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
             isFailed: true,
           );
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        showSnackBar(
-          context: context,
-          message: 'Something went wrong',
-          isFailed: true,
-        );
       }
     }
   }
@@ -106,17 +109,21 @@ class _EditTodoScreenState extends State<EditTodoScreen> {
       appBar: AppBar(title: Text('Update Todo')),
       body: SingleChildScrollView(
         child: Form(
+          key: _fKey,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
             child: Column(
               children: [
-                TextField(
+                TextFormField(
                   onTapOutside: (event) {
                     FocusScope.of(context).unfocus();
                   },
                   maxLines: 3,
                   controller: _todoTEC,
                   decoration: InputDecoration(labelText: 'What to do?'),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      value!.isEmpty ? 'You must input something' : null,
                 ),
                 SizedBox(height: 10),
                 Row(

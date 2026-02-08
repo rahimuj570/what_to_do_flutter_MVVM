@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:intl/intl.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
+import 'package:mvvm_task_management/utils/show_datetime_dialog.dart';
 import 'package:mvvm_task_management/utils/show_snackbar.dart';
 import 'package:mvvm_task_management/utils/task_status_get.dart';
 import 'package:mvvm_task_management/view_models/theme_provider.dart';
@@ -12,8 +14,14 @@ class TodoCardWidget extends StatelessWidget {
   const TodoCardWidget(this.model, {super.key});
 
   final TodoModel model;
+
   @override
   Widget build(BuildContext context) {
+    String? dateTime;
+    Future<void> getDeadLine(BuildContext context) async {
+      dateTime = await showDateTimeDialog(context);
+    }
+
     return Consumer2<TodoProvider, ThemeProvider>(
       builder: (context, todoProvider, themeProvider, child) => Slidable(
         endActionPane: ActionPane(
@@ -88,7 +96,17 @@ class TodoCardWidget extends StatelessWidget {
                         if (model.status != 0)
                           PopupMenuItem(
                             child: Text(getMenuName(0)),
-                            onTap: () => onTapChangeStatus(context, 0, model),
+                            onTap: () async {
+                              await getDeadLine(context);
+                              if (context.mounted) {
+                                onTapChangeStatus(
+                                  context,
+                                  0,
+                                  model,
+                                  deadline: dateTime,
+                                );
+                              }
+                            },
                           ),
                         if (model.status != 1 && model.status != 3)
                           PopupMenuItem(
@@ -158,12 +176,32 @@ class TodoCardWidget extends StatelessWidget {
 void onTapChangeStatus(
   BuildContext context,
   int newStatus,
-  TodoModel model,
-) async {
+  TodoModel model, {
+  String? deadline,
+}) async {
+  DateTime? dt;
+  if (newStatus == 0) {
+    if (deadline != null && deadline.isNotEmpty) {
+      DateFormat format = DateFormat.yMMMEd().add_Hm();
+      dt = format.parse(deadline);
+      model.deadline = dt.millisecondsSinceEpoch;
+    } else {
+      if (model.deadline != null) {
+        if (DateTime.fromMillisecondsSinceEpoch(
+          model.deadline!,
+        ).isBefore(DateTime.now())) {
+          model.deadline = null;
+        }
+      }
+    }
+  } else {
+    model.deadline = null;
+  }
   int count = await context.read<TodoProvider>().changeTodoStatus(
     newStatus,
     model,
   );
+
   if (context.mounted) {
     if (count != 0) {
       showSnackBar(

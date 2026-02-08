@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mvvm_task_management/app/app_colors.dart';
 import 'package:mvvm_task_management/models/todo_model.dart';
+import 'package:mvvm_task_management/utils/show_datetime_dialog.dart';
 import 'package:mvvm_task_management/utils/show_snackbar.dart';
 import 'package:mvvm_task_management/view_models/todo_provider.dart';
 import 'package:mvvm_task_management/widgets/btn_loading_widget.dart';
@@ -14,11 +14,13 @@ import 'package:provider/provider.dart';
 class AddTodoScreen extends StatefulWidget {
   const AddTodoScreen({super.key});
   static String name = 'addTodoScreen';
+
   @override
   State<AddTodoScreen> createState() => _AddTodoScreenState();
 }
 
 class _AddTodoScreenState extends State<AddTodoScreen> {
+  final GlobalKey<FormState> _fKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   XFile? _file;
   final TextEditingController _todoTEC = TextEditingController();
@@ -31,44 +33,37 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     });
   }
 
-  void showDate() {
-    DatePicker.showDateTimePicker(
-      context,
-
-      showTitleActions: true,
-      minTime: (DateTime.now().add(Duration(minutes: 10))),
-      maxTime: DateTime.now().add(Duration(days: 365 * 5)),
-      currentTime: (DateTime.now().add(Duration(minutes: 10))),
-      onConfirm: (date) {
-        DateFormat format = DateFormat.yMMMEd().add_Hm();
-        _dateTimeTEC.text = format.format(date);
-        setState(() {});
-      },
-      locale: LocaleType.en,
-    );
-  }
-
   void craeteTodo() async {
-    DateTime? dt;
-    if (_dateTimeTEC.text.isNotEmpty) {
-      DateFormat format = DateFormat.yMMMEd().add_Hm();
-      dt = format.parse(_dateTimeTEC.text);
-    }
-    TodoModel model = TodoModel(
-      status: 0,
-      todo: _todoTEC.text.trim(),
-      deadline: dt?.millisecondsSinceEpoch,
-    );
-    try {
-      int count = await context.read<TodoProvider>().addTodo(model);
+    if (_fKey.currentState!.validate()) {
+      DateTime? dt;
+      if (_dateTimeTEC.text.isNotEmpty) {
+        DateFormat format = DateFormat.yMMMEd().add_Hm();
+        dt = format.parse(_dateTimeTEC.text);
+      }
+      TodoModel model = TodoModel(
+        status: 0,
+        todo: _todoTEC.text.trim(),
+        deadline: dt?.millisecondsSinceEpoch,
+      );
+      try {
+        int count = await context.read<TodoProvider>().addTodo(model);
 
-      if (count != 0) {
-        if (mounted) {
-          showSnackBar(context: context, message: 'Sucessfully created');
-          _todoTEC.text = '';
-          _dateTimeTEC.text = '';
+        if (count != 0) {
+          if (mounted) {
+            showSnackBar(context: context, message: 'Sucessfully created');
+            _todoTEC.text = '';
+            _dateTimeTEC.text = '';
+          }
+        } else {
+          if (mounted) {
+            showSnackBar(
+              context: context,
+              message: 'Something went wrong',
+              isFailed: true,
+            );
+          }
         }
-      } else {
+      } catch (e) {
         if (mounted) {
           showSnackBar(
             context: context,
@@ -77,23 +72,20 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
           );
         }
       }
-    } catch (e) {
-      if (mounted) {
-        showSnackBar(
-          context: context,
-          message: 'Something went wrong',
-          isFailed: true,
-        );
-      }
     }
+  }
+
+  void getDeadLine() async {
+    _dateTimeTEC.text = await showDateTimeDialog(context);
+    setState(() {});
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    _dateTimeTEC.dispose();
-    _dateTimeTEC.dispose();
     super.dispose();
+    _dateTimeTEC.dispose();
+    _todoTEC.dispose();
   }
 
   @override
@@ -102,11 +94,12 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
       appBar: AppBar(title: Text('Create Todo')),
       body: SingleChildScrollView(
         child: Form(
+          key: _fKey,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
             child: Column(
               children: [
-                TextField(
+                TextFormField(
                   onTapOutside: (event) {
                     FocusScope.of(context).unfocus();
                   },
@@ -128,6 +121,9 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                       ),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUnfocus,
+                  validator: (value) =>
+                      value!.isEmpty ? 'You must input something' : null,
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -152,7 +148,10 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                           foregroundColor: Colors.white,
                         ),
                         onPressed: _dateTimeTEC.text.isEmpty
-                            ? showDate
+                            ? () {
+                                getDeadLine();
+                                setState(() {});
+                              }
                             : removeDeadeline,
                         child: Text(
                           _dateTimeTEC.text.isEmpty ? 'Add Deadline' : 'Remove',

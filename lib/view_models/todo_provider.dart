@@ -56,7 +56,6 @@ class TodoProvider extends ChangeNotifier {
     _todoCompletedList.clear();
     _todoMissedList.clear();
     _isFetchingTodod = true;
-    notifyListeners();
     Database db = await dbServices.getDatabase;
 
     List<Map<String, dynamic>> todos = await db.query(
@@ -115,8 +114,7 @@ class TodoProvider extends ChangeNotifier {
       _createNotification(count, model);
     }
     _isCraetingTodo = false;
-    notifyListeners();
-    fetchTodo();
+    await fetchTodo();
     return count;
   }
 
@@ -144,6 +142,7 @@ class TodoProvider extends ChangeNotifier {
     _isUpdatingTodo = false;
     notifyListeners();
     fetchTodo();
+
     return count;
   }
 
@@ -177,7 +176,6 @@ class TodoProvider extends ChangeNotifier {
     Database db = await dbServices.getDatabase;
     int oldStatus = model.status;
     model.status = newStatus;
-    model.deadline = null;
     count = await db.update(
       dbServices.todoTableName,
       model.toJson(),
@@ -215,14 +213,7 @@ class TodoProvider extends ChangeNotifier {
       switch (newStatus) {
         case 0:
           {
-            model.deadline = null;
             _todoInProgressList.add(model);
-            await db.update(
-              dbServices.todoTableName,
-              model.toJson(),
-              where: 'id=?',
-              whereArgs: [model.id],
-            );
             break;
           }
         case 1:
