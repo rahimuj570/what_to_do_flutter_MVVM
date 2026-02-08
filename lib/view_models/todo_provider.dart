@@ -60,7 +60,7 @@ class TodoProvider extends ChangeNotifier {
 
     List<Map<String, dynamic>> todos = await db.query(
       dbServices.todoTableName,
-      orderBy: _sortDESC ? 'id desc' : 'id',
+      orderBy: _sortDESC ? 'deadline desc' : 'deadline',
     );
     for (Map<String, dynamic> t in todos) {
       bool expire = false;
